@@ -1,0 +1,28 @@
+﻿{
+
+  "data": [
+    {
+      "bn": "北京",
+      "yyyyMM": "2019-01",
+      "amount": 100
+    },
+    {
+      "bn": "北京",
+      "yyyyMM": "2019-02",
+      "amount": 99
+    },
+    {
+      "bn": "ShangHai",
+      "yyyyMM": "2019-01",
+      "amount": 100
+    },
+    {
+      "bn": "ShangHai",
+      "yyyyMM": "2019-02",
+      "amount": 1001
+    }
+
+
+
+  ]
+}
