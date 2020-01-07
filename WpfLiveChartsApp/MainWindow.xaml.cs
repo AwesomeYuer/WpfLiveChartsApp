@@ -17,6 +17,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Microshaoft;
 
 namespace WpfLiveChartsApp
 {
@@ -35,9 +36,13 @@ namespace WpfLiveChartsApp
             var json = new StreamReader(File.OpenRead(@"data.json")).ReadToEnd();
             var jObject = JObject.Parse(json)["data"];
 
-            var (labels, collection) =
-            ChartViewHelper
-                    .Create<string, ColumnSeries, double>
+
+            var seriesCollection = new SeriesCollection();
+
+
+           
+            seriesCollection
+                    .MergeSeries<string, ColumnSeries, double>
                         (
                             jObject
                             , (x, y) =>
@@ -80,14 +85,12 @@ namespace WpfLiveChartsApp
                                 return
                                     x["amount"].Value<double>();
                             }
+                            , out var labels
                         );
-            SeriesCollection = collection;
+            SeriesCollection = seriesCollection;
             Labels = labels;
             Formatter = value => value.ToString("N");
             DataContext = this;
-
-
-
 
 
             //var cities = jObject["data"]

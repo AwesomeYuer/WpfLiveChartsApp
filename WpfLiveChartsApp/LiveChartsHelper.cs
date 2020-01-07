@@ -1,21 +1,17 @@
-﻿using LiveCharts;
-using LiveCharts.Definitions.Series;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 
-namespace WpfLiveChartsApp
+namespace Microshaoft
 {
-    public static class ChartViewHelper
+    using LiveCharts;
+    using LiveCharts.Definitions.Series;
+    using Newtonsoft.Json.Linq;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    public static class LiveChartsHelper
     {
-
         private class JTokenEqualityComparer : IEqualityComparer<JToken>
         {
-
             private Func<JToken, JToken, bool> _onEqualsProcessFunc;
             private Func<JToken, int> _onGetHashCodeProcessFunc;
             public JTokenEqualityComparer
@@ -39,20 +35,18 @@ namespace WpfLiveChartsApp
             }
         };
 
-        public static 
-            (
-                string[]                //labels
-                , SeriesCollection
-            )
-                Create<TGroupKey, TSeries, TChartValue>
+        public static SeriesCollection
+                MergeSeries<TGroupKey, TSeries, TChartValue>
                     (
-                        JToken data
+                        this SeriesCollection target
+                        , JToken data
                         , Func<JToken, JToken, bool> onLableEqualsProcessFunc
                         , Func<JToken, int> onLableGetHashCodeProcessFunc
                         , Func<JToken, string> onLableProcessFunc
                         , Func<JToken, TGroupKey> onGroupingProcessFunc
                         , Func<IGrouping<TGroupKey, JToken>, TSeries> onSeriesViewFactoryProcessFunc
                         , Func<JToken, TChartValue> onAddChartValueProcessFunc
+                        , out string[] labels
                     )
                         where
                             TSeries : ISeriesView//, new()
@@ -63,21 +57,21 @@ namespace WpfLiveChartsApp
                                         , onLableGetHashCodeProcessFunc
                                     );
 
-            var lables = data
-                            .AsJEnumerable()
-                            .Distinct
-                                (
-                                    comparer
-                                )
-                            .Select
-                                (
-                                    (x) =>
-                                    {
-                                        return
-                                            onLableProcessFunc(x);
-                                    }
-                                )
-                            .ToArray();
+            labels = data
+                        .AsJEnumerable()
+                        .Distinct
+                            (
+                                comparer
+                            )
+                        .Select
+                            (
+                                (x) =>
+                                {
+                                    return
+                                        onLableProcessFunc(x);
+                                }
+                            )
+                        .ToArray();
             var groups = data
                             .AsJEnumerable()
                             .GroupBy
@@ -88,7 +82,6 @@ namespace WpfLiveChartsApp
                                             onGroupingProcessFunc(x);
                                     }
                                 );
-            var seriesCollection = new SeriesCollection();
             foreach (var group in groups)
             {
                 ISeriesView seriesView = onSeriesViewFactoryProcessFunc(group);
@@ -105,29 +98,22 @@ namespace WpfLiveChartsApp
                         seriesView
                                 .Values = new ChartValues<TChartValue>();
                     }
-
                     var adding = onAddChartValueProcessFunc(item);
                     seriesView
-                        .Values
-                        .Add
-                            (
-                                adding
-                            );
+                            .Values
+                            .Add
+                                (
+                                    adding
+                                );
                 }
-                seriesCollection
-                                .Add
-                                    (
-                                        seriesView
-                                    );
-
+                target
+                    .Add
+                        (
+                            seriesView
+                        );
             };
-
-
-            return 
-                (
-                    lables
-                    , seriesCollection
-                );
+            return
+                target;
         }
 
     }
