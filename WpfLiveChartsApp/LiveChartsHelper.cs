@@ -2,6 +2,7 @@
 {
     using LiveCharts;
     using LiveCharts.Definitions.Series;
+    using LiveCharts.Wpf;
     using Newtonsoft.Json.Linq;
     using System;
     using System.Collections.Generic;
@@ -39,20 +40,26 @@
                     (
                         this SeriesCollection target
                         , JToken data
-                        , Func<JToken, JToken, bool> onLableDistinctEqualsProcessFunc
-                        , Func<JToken, int> onLableDistinctGetHashCodeProcessFunc
-                        , Func<JToken, string> onLableFactoryProcessFunc
-                        , Func<JToken, TGroupKey> onGroupingProcessFunc
-                        , Func<IGrouping<TGroupKey, JToken>, TSeries> onSeriesViewFactoryProcessFunc
-                        , Func<JToken, TChartValue> onAddChartValueProcessFunc
+                        , Func<JToken, JToken, bool>
+                                            onLableDistinctEqualsPredictFunc
+                        , Func<JToken, int> 
+                                            onLableDistinctGetHashCodeProcessFunc
+                        , Func<JToken, string>
+                                            onLableFactoryProcessFunc
+                        , Func<JToken, TGroupKey>
+                                            onGroupingProcessFunc
+                        , Func<IGrouping<TGroupKey, JToken>, string>
+                                            onSetSeriesViewTitleProcessFunc
+                        , Func<JToken, TChartValue>
+                                            onAddChartValueProcessFunc
                         , out string[] labels
                     )
                         where
-                            TSeries : ISeriesView//, new()
+                            TSeries : Series, new()
         {
             var comparer = new JTokenEqualityComparer
                                     (
-                                        onLableDistinctEqualsProcessFunc
+                                        onLableDistinctEqualsPredictFunc
                                         , onLableDistinctGetHashCodeProcessFunc
                                     );
             labels = data
@@ -82,7 +89,10 @@
                                 );
             foreach (var group in groups)
             {
-                ISeriesView seriesView = onSeriesViewFactoryProcessFunc(group);
+                ISeriesView seriesView = new TSeries
+                {
+                    Title = onSetSeriesViewTitleProcessFunc(group)
+                };
                 foreach (var item in group)
                 {
                     if
