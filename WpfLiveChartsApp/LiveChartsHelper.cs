@@ -1,6 +1,4 @@
-﻿
-
-namespace Microshaoft
+﻿namespace Microshaoft
 {
     using LiveCharts;
     using LiveCharts.Definitions.Series;
@@ -20,29 +18,30 @@ namespace Microshaoft
                     , Func<JToken, int> onGetHashCodeProcessFunc
                 )
             {
-                _onEqualsProcessFunc = onEqualsProcessFunc;
-                _onGetHashCodeProcessFunc = onGetHashCodeProcessFunc;
+                _onEqualsProcessFunc
+                                = onEqualsProcessFunc;
+                _onGetHashCodeProcessFunc
+                                = onGetHashCodeProcessFunc;
             }
-
             public bool Equals(JToken x, JToken y)
             {
-                return _onEqualsProcessFunc(x, y);
+                return
+                    _onEqualsProcessFunc(x, y);
             }
-
-            public int GetHashCode(JToken obj)
+            public int GetHashCode(JToken target)
             {
-                return _onGetHashCodeProcessFunc(obj);
+                return
+                    _onGetHashCodeProcessFunc(target);
             }
         };
-
         public static SeriesCollection
                 MergeSeries<TGroupKey, TSeries, TChartValue>
                     (
                         this SeriesCollection target
                         , JToken data
-                        , Func<JToken, JToken, bool> onLableEqualsProcessFunc
-                        , Func<JToken, int> onLableGetHashCodeProcessFunc
-                        , Func<JToken, string> onLableProcessFunc
+                        , Func<JToken, JToken, bool> onLableDistinctEqualsProcessFunc
+                        , Func<JToken, int> onLableDistinctGetHashCodeProcessFunc
+                        , Func<JToken, string> onLableFactoryProcessFunc
                         , Func<JToken, TGroupKey> onGroupingProcessFunc
                         , Func<IGrouping<TGroupKey, JToken>, TSeries> onSeriesViewFactoryProcessFunc
                         , Func<JToken, TChartValue> onAddChartValueProcessFunc
@@ -53,10 +52,9 @@ namespace Microshaoft
         {
             var comparer = new JTokenEqualityComparer
                                     (
-                                        onLableEqualsProcessFunc
-                                        , onLableGetHashCodeProcessFunc
+                                        onLableDistinctEqualsProcessFunc
+                                        , onLableDistinctGetHashCodeProcessFunc
                                     );
-
             labels = data
                         .AsJEnumerable()
                         .Distinct
@@ -68,7 +66,7 @@ namespace Microshaoft
                                 (x) =>
                                 {
                                     return
-                                        onLableProcessFunc(x);
+                                        onLableFactoryProcessFunc(x);
                                 }
                             )
                         .ToArray();
@@ -115,6 +113,5 @@ namespace Microshaoft
             return
                 target;
         }
-
     }
 }
